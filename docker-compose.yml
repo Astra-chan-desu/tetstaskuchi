@@ -6,14 +6,17 @@ services:
       POSTGRES_PASSWORD: password
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432" 
-
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   web:
     build: .
     command: >
       bash -c "
         rm -f tmp/pids/server.pid &&
+        until pg_isready -h db -p 5432 -U postgres; do sleep 1; done &&
         bundle exec rails db:create db:migrate 2>/dev/null || true &&
         bundle exec rails db:seed 2>/dev/null || true &&
         bundle exec rails server -b 0.0.0.0
@@ -21,7 +24,8 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgres://postgres:password@db:5432/testtaskuchidotru_development
       RAILS_ENV: development
