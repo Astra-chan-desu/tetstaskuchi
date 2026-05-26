@@ -15,6 +15,7 @@ services:
       bash -c "
         rm -f tmp/pids/server.pid &&
         bundle exec rails db:create db:migrate 2>/dev/null || true &&
+        bundle exec rails db:seed 2>/dev/null || true &&
         bundle exec rails server -b 0.0.0.0
       "
     ports:
