@@ -29,7 +29,7 @@ RSpec.describe "Api::V1::Students", type: :request do
 
     it "throws err at bad input" do
       post api_v1_students_path, params: { student: { first_name: "" } }, as: :json
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:method_not_allowed)
     end
   end
 

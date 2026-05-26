@@ -1,7 +1,7 @@
 module Api
   module V1
     class StudentsController < BaseController
-      before_action :authenticate!, only: [:destroy]   # добавь эту строку
+      before_action :authenticate!, only: [:destroy]
 
       def create
         student = Student.new(student_params)
@@ -10,14 +10,18 @@ module Api
           response.set_header('X-Auth-Token', token)
           render json: student_json(student), status: :created
         else
-          render json: { errors: student.errors.full_messages }, status: :unprocessable_entity
+          render json: { errors: student.errors.full_messages }, status: :method_not_allowed
         end
       end
 
       def destroy
-        student = Student.find(params[:user_id])
-        student.destroy
-        head :no_content
+        student = Student.find_by(id: params[:user_id])
+        if student
+          student.destroy
+          head :no_content
+        else
+          render json: { error: 'Некорректный id студента' }, status: :bad_request
+        end
       end
 
       private
@@ -40,7 +44,6 @@ module Api
 
         unless token.present? && ActiveSupport::SecurityUtils.secure_compare(token, expected_token)
           render json: { error: 'Unauthorized' }, status: :unauthorized
-          # before_action остановит дальнейшее выполнение, поэтому return не нужен
         end
       end
 
