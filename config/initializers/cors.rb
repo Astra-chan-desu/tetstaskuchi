@@ -16,10 +16,10 @@
 # end
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins '*'  # Для разработки разрешим все источники
-    resource '*',
+    origins "*"  # Для разработки разрешим все источники
+    resource "*",
       headers: :any,
-      methods: [:get, :post, :put, :patch, :delete, :options, :head],
-      expose: ['X-Auth-Token']  # важно, чтобы клиент видел заголовок с токеном
+      methods: [ :get, :post, :put, :patch, :delete, :options, :head ],
+      expose: [ "X-Auth-Token" ]  # важно, чтобы клиент видел заголовок с токеном
   end
 end

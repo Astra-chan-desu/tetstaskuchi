@@ -1,13 +1,11 @@
 module Api
   module V1
     class StudentsController < BaseController
-
-
       def create
         student = Student.new(student_params)
         if student.save
           token = generate_token(student.id)
-          response.set_header('X-Auth-Token', token)
+          response.set_header("X-Auth-Token", token)
           render json: student_json(student), status: :created
         else
           render json: { errors: student.errors.full_messages }, status: :method_not_allowed
@@ -16,10 +14,10 @@ module Api
 
       def destroy
         @student = Student.find_by(id: params[:user_id])
-        return render json: { error: 'Некорректный id студента' }, status: :bad_request unless @student
+        return render json: { error: "Некорректный id студента" }, status: :bad_request unless @student
 
         authenticate!
-        return if performed?   
+        return if performed?
         @student.destroy
         head :no_content
       end
@@ -33,17 +31,18 @@ module Api
       end
 
       def generate_token(user_id)
-        secret_salt = ENV.fetch('SECRET_SALT', 'default_salt_change_me')
+        secret_salt = ENV.fetch("SECRET_SALT", "default_salt_change_me")
         Digest::SHA256.hexdigest("#{user_id}#{secret_salt}")
       end
 
       def authenticate!
-        auth_header = request.headers['Authorization']
-        token = auth_header&.split(' ')&.last
+        auth_header = request.headers["Authorization"]
+        token = auth_header&.split(" ")&.last
         expected_token = generate_token(params[:user_id].to_i)
 
         unless token.present? && ActiveSupport::SecurityUtils.secure_compare(token, expected_token)
-          render json: { error: 'Некорректная авторизация' }, status: :unauthorized        end
+          render json: { error: "Некорректная авторизация" }, status: :unauthorized
+        end
       end
 
       def student_json(student)
