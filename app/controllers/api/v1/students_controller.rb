@@ -1,7 +1,7 @@
 module Api
   module V1
     class StudentsController < BaseController
-      before_action :authenticate!, only: [:destroy]
+
 
       def create
         student = Student.new(student_params)
@@ -16,12 +16,11 @@ module Api
 
       def destroy
         student = Student.find_by(id: params[:user_id])
-        if student
-          student.destroy
-          head :no_content
-        else
-          render json: { error: 'Некорректный id студента' }, status: :bad_request
-        end
+        return render json: { error: 'Некорректный id студента' }, status: :bad_request unless student
+
+        authenticate!
+        student.destroy
+        head :no_content
       end
 
       private
@@ -43,8 +42,7 @@ module Api
         expected_token = generate_token(params[:user_id].to_i)
 
         unless token.present? && ActiveSupport::SecurityUtils.secure_compare(token, expected_token)
-          render json: { error: 'Unauthorized' }, status: :unauthorized
-        end
+          render json: { error: 'Некорректная авторизация' }, status: :unauthorized        end
       end
 
       def student_json(student)
