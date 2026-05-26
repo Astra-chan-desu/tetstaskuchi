@@ -15,11 +15,12 @@ module Api
       end
 
       def destroy
-        student = Student.find_by(id: params[:user_id])
-        return render json: { error: 'Некорректный id студента' }, status: :bad_request unless student
+        @student = Student.find_by(id: params[:user_id])
+        return render json: { error: 'Некорректный id студента' }, status: :bad_request unless @student
 
         authenticate!
-        student.destroy
+        return if performed?   
+        @student.destroy
         head :no_content
       end
 
